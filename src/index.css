@@ -1,0 +1,61 @@
+:root {
+  --navy: #001a0d; --navy-dark: #000d06; --navy-mid: #003318;
+  --green-900: #052e16; --green-800: #14532d; --green-700: #166534;
+  --green-600: #16a34a; --green-500: #22c55e; --green-400: #4ade80;
+  --green-faint: #f0fdf4; --green-light: #bbf7d0;
+  --gold: #ca8a04; --gold-dark: #a16207; --gold-light: #fde047; --gold-faint: #fefce8;
+  --accent: #16a34a; --accent-dark: #14532d; --accent-faint: #f0fdf4;
+  --white: #ffffff; --off-white: #f8fffe; --gray-50: #f0fdf4;
+  --gray-100: #dcfce7; --gray-200: #bbf7d0; --gray-400: #86efac;
+  --gray-500: #4ade80; --gray-600: #16a34a; --gray-800: #052e16;
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', monospace;
+  --r-xs:3px; --r-sm:6px; --r-md:10px; --r-lg:16px; --r-xl:24px; --r-2xl:32px;
+  --shadow-sm: 0 2px 8px rgba(5,46,22,0.09);
+  --shadow-md: 0 4px 20px rgba(5,46,22,0.13);
+  --shadow-lg: 0 8px 40px rgba(5,46,22,0.17);
+  --shadow-xl: 0 16px 64px rgba(5,46,22,0.22);
+  --t-fast:0.18s cubic-bezier(.4,0,.2,1);
+  --t-mid:0.3s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:#1a2e1a;background:var(--white);line-height:1.65;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+ul{list-style:none}
+input,textarea,select{font-family:inherit}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--green-faint)}
+::-webkit-scrollbar-thumb{background:var(--green-600);border-radius:10px}
+.container{max-width:1220px;margin:0 auto;padding:0 24px}
+.section{padding:96px 0}
+.section-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.section-eyebrow::before{content:'';display:block;width:24px;height:1px;background:var(--gold)}
+.section-title{font-family:var(--font-display);font-size:clamp(1.9rem,3.5vw,2.75rem);font-weight:600;color:var(--green-900);line-height:1.18;letter-spacing:-.01em;margin-bottom:16px}
+.section-title--white{color:var(--white)}
+.section-lead{font-size:1.05rem;color:#3d6b3d;max-width:580px;line-height:1.75}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:var(--r-xs);font-size:14px;font-weight:600;letter-spacing:.02em;transition:all var(--t-mid);white-space:nowrap;cursor:pointer}
+.btn--green{background:var(--green-700);color:var(--white);border:1px solid transparent}
+.btn--green:hover{background:var(--green-600);transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.btn--gold{background:var(--gold);color:var(--green-900);border:1px solid transparent}
+.btn--gold:hover{background:var(--gold-light);transform:translateY(-2px)}
+.btn--outline{background:transparent;color:var(--green-900);border:1.5px solid var(--green-700)}
+.btn--outline:hover{background:var(--green-700);color:var(--white)}
+.btn--outline-white{background:transparent;color:var(--white);border:1.5px solid rgba(255,255,255,.4)}
+.btn--outline-white:hover{background:rgba(255,255,255,.1)}
+.tag{display:inline-block;padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--green-faint);color:var(--green-700)}
+.tag--green{background:var(--green-faint);color:var(--green-700)}
+.tag--gold{background:var(--gold-faint);color:var(--gold-dark)}
+.pf-btn{padding:6px 14px;border-radius:100px;border:1px solid #bbf7d0;font-size:12.5px;font-weight:500;color:#3d6b3d;background:var(--white);transition:all var(--t-fast);cursor:pointer}
+.pf-btn:hover{border-color:var(--green-600);color:var(--green-700)}
+.pf-btn.active{background:var(--green-700);border-color:var(--green-700);color:var(--white)}
+.divider{width:48px;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-light));border-radius:2px;margin:16px 0 24px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+.animate-fade-up{animation:fadeUp .7s ease both}
+.animate-fade-up-d1{animation:fadeUp .7s .1s ease both}
+.animate-fade-up-d2{animation:fadeUp .7s .2s ease both}
+.animate-fade-up-d3{animation:fadeUp .7s .3s ease both}

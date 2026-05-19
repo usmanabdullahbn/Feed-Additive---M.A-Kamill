@@ -1,0 +1,25 @@
+.fan { position:fixed; top:0; left:0; right:0; z-index:1000; transition:all var(--t-mid); }
+.fan--scrolled { background:rgba(5,46,22,0.97); backdrop-filter:blur(14px); box-shadow:0 2px 32px rgba(5,46,22,0.3); }
+.fan__inner { display:flex; align-items:center; justify-content:space-between; height:72px; gap:16px; }
+.fan__logo { display:flex; align-items:center; gap:12px; flex-shrink:0; }
+.fan__logo-icon { width:42px; height:42px; background:linear-gradient(135deg,var(--green-600),var(--green-800)); border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; color:var(--white); }
+.fan__logo-name { display:block; font-family:var(--font-display); font-size:17px; font-weight:600; color:var(--white); line-height:1.1; }
+.fan__logo-sub { display:block; font-size:9.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--gold); }
+.fan__links { display:flex; align-items:center; gap:2px; flex:1; justify-content:center; }
+.fan__link { padding:8px 14px; border-radius:var(--r-xs); font-size:14px; font-weight:500; color:rgba(255,255,255,.75); transition:all var(--t-fast); }
+.fan__link:hover { color:var(--white); background:rgba(255,255,255,.08); }
+.fan__link--active { color:var(--green-400); background:rgba(74,222,128,.1); }
+.fan__actions { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.fan__main-link { font-size:13px; font-weight:600; color:var(--green-400); border:1px solid rgba(74,222,128,.3); padding:7px 14px; border-radius:100px; transition:all var(--t-fast); }
+.fan__main-link:hover { background:rgba(74,222,128,.1); }
+.fan__cta { padding:9px 20px; font-size:13px; }
+.fan__burger { display:none; flex-direction:column; gap:5px; padding:8px; }
+.fan__burger span { display:block; width:22px; height:2px; background:var(--white); border-radius:2px; transition:transform .3s,opacity .3s; }
+.fan__burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.fan__burger.open span:nth-child(2){opacity:0}
+.fan__burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.fan__mobile { background:var(--green-900); border-top:1px solid rgba(255,255,255,.06); padding:12px 0 20px; }
+.fan__mobile-link { display:block; padding:12px 24px; font-size:15px; color:rgba(255,255,255,.8); transition:color var(--t-fast); }
+.fan__mobile-link:hover { color:var(--white); }
+.fan__mobile-main { color:var(--green-400); font-weight:600; border-top:1px solid rgba(255,255,255,.06); margin-top:8px; padding-top:16px; }
+@media (max-width:900px) { .fan__links,.fan__cta{display:none} .fan__burger{display:flex} }
