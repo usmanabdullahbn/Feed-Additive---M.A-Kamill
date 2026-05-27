@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../utils/api';
 import './Blog.css';
 
+// Mock data for fallback
 const MOCK = [
   { _id:'1', slug:'mycotoxin-management-feed', category:'Feed Safety', title:'Mycotoxin Management in Animal Feed: A Complete Guide', excerpt:'Contaminated feed is one of the most underestimated threats to farm productivity. Here is how to detect, prevent and manage mycotoxin risk effectively.', publishedAt:'2026-04-20', readTime:8 },
   { _id:'2', slug:'probiotics-livestock-gut', category:'Gut Health', title:'The Science Behind Probiotic Supplementation in Livestock', excerpt:'Emerging research confirms that multi-strain probiotic supplementation delivers measurable improvements in feed conversion, immunity and mortality rates across species.', publishedAt:'2026-04-05', readTime:6 },
@@ -34,6 +35,73 @@ const MOCK_POST = {
   tags:['Mycotoxins','Feed Safety','Poultry','Livestock','Aflatoxin'],
 };
 
+// CRUD Modal Component
+function BlogModal({ blog, onSave, onClose }) {
+  const [form, setForm] = useState(blog || {
+    title: '', excerpt: '', content: '', category: 'Feed Additives', tags: '', author: 'M.A. Kamil Farma', published: false, readTime: 0
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    const data = {
+      ...form,
+      tags: form.tags.split(',').map(t => t.trim()).filter(t => t),
+      readTime: parseInt(form.readTime) || 0,
+      published: form.published === true || form.published === 'true',
+    };
+    await onSave(data);
+    setLoading(false);
+    onClose();
+  };
+
+  return (
+    <div className="fab-modal" onClick={onClose}>
+      <div className="fab-modal__content" onClick={e => e.stopPropagation()}>
+        <button className="fab-modal__close" onClick={onClose}>✕</button>
+        <h2>{blog ? 'Edit Blog' : 'Create Blog'}</h2>
+        <form onSubmit={handleSubmit} className="fab-form">
+          <input type="text" placeholder="Title" required value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
+          <textarea placeholder="Excerpt" required value={form.excerpt} onChange={e => setForm({...form, excerpt: e.target.value})} rows="2"></textarea>
+          <textarea placeholder="Content (HTML allowed)" required value={form.content} onChange={e => setForm({...form, content: e.target.value})} rows="8"></textarea>
+          
+          <div className="fab-form__row">
+            <select value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
+              <option>Feed Additives</option>
+              <option>Poultry</option>
+              <option>Livestock</option>
+              <option>Compounding Pharmacy</option>
+              <option>Industry News</option>
+              <option>Science</option>
+              <option>Research</option>
+              <option>Innovation</option>
+              <option>Sustainability</option>
+              <option>General</option>
+            </select>
+            <input type="text" placeholder="Author" value={form.author} onChange={e => setForm({...form, author: e.target.value})} />
+          </div>
+
+          <div className="fab-form__row">
+            <input type="text" placeholder="Tags (comma-separated)" value={form.tags} onChange={e => setForm({...form, tags: e.target.value})} />
+            <input type="number" placeholder="Read time (min)" value={form.readTime} onChange={e => setForm({...form, readTime: e.target.value})} />
+          </div>
+
+          <label className="fab-checkbox">
+            <input type="checkbox" checked={form.published === true || form.published === 'true'} onChange={e => setForm({...form, published: e.target.checked})} />
+            Published
+          </label>
+
+          <div className="fab-form__actions">
+            <button type="submit" disabled={loading} className="btn btn--green">{loading ? 'Saving...' : 'Save Blog'}</button>
+            <button type="button" onClick={onClose} className="btn btn--outline">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function formatDate(d) {
   return new Date(d).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
 }
@@ -44,14 +112,87 @@ export function Blog() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
+  
+  // Admin CRUD states
+  const [isAdmin, setIsAdmin] = useState(!!localStorage.getItem('adminToken'));
+  const [adminToken, setAdminToken] = useState(localStorage.getItem('adminToken') || '');
+  const [showTokenForm, setShowTokenForm] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [editingBlog, setEditingBlog] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [allBlogs, setAllBlogs] = useState([]); // For admin - show all blogs
 
   useEffect(() => {
+    fetchBlogs();
+  }, [page]);
+
+  useEffect(() => {
+    const handleAdminModalRequest = () => {
+      if (localStorage.getItem('showAdminModal') === 'true') {
+        setShowTokenForm(true);
+        localStorage.removeItem('showAdminModal');
+      }
+    };
+    window.addEventListener('adminModalRequested', handleAdminModalRequest);
+    return () => window.removeEventListener('adminModalRequested', handleAdminModalRequest);
+  }, []);
+
+  const fetchBlogs = () => {
     setLoading(true);
-    api.blogs.list({ page, limit:9, category:'Feed Additives', search })
+    api.blogs.list({ page, limit: 9, category: 'Feed Additives', search })
       .then(r => { setBlogs(r.data); setPagination(r.pagination); })
       .catch(() => setBlogs(MOCK))
       .finally(() => setLoading(false));
-  }, [page]);
+  };
+
+  const fetchAllBlogs = () => {
+    setAdminLoading(true);
+    api.blogs.list({ page: 1, limit: 1000 })
+      .then(r => setAllBlogs(r.data))
+      .catch(() => setAllBlogs([]))
+      .finally(() => setAdminLoading(false));
+  };
+
+  const handleAdminLogin = (e) => {
+    e.preventDefault();
+    localStorage.setItem('adminToken', adminToken);
+    setIsAdmin(true);
+    setShowTokenForm(false);
+    fetchAllBlogs();
+  };
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('adminToken');
+    setIsAdmin(false);
+    setAdminToken('');
+    setAllBlogs([]);
+  };
+
+  const handleSaveBlog = async (data) => {
+    try {
+      if (editingBlog) {
+        await api.blogs.update(editingBlog._id, data);
+      } else {
+        await api.blogs.create(data);
+      }
+      fetchBlogs();
+      fetchAllBlogs();
+      setEditingBlog(null);
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  };
+
+  const handleDeleteBlog = async (id) => {
+    if (!confirm('Delete this blog?')) return;
+    try {
+      await api.blogs.delete(id);
+      fetchBlogs();
+      fetchAllBlogs();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    }
+  };
 
   function doSearch(e) { e.preventDefault(); setPage(1); }
 
@@ -59,6 +200,37 @@ export function Blog() {
 
   return (
     <div className="fab-page">
+      {/* Admin Token Form */}
+      {showTokenForm && (
+        <div className="fab-modal" onClick={() => setShowTokenForm(false)}>
+          <div className="fab-modal__content" onClick={e => e.stopPropagation()}>
+            <h2>Admin Login</h2>
+            <form onSubmit={handleAdminLogin} className="fab-form">
+              <input 
+                type="password" 
+                placeholder="Enter admin token" 
+                value={adminToken} 
+                onChange={e => setAdminToken(e.target.value)}
+                required
+              />
+              <div className="fab-form__actions">
+                <button type="submit" className="btn btn--green">Login</button>
+                <button type="button" onClick={() => setShowTokenForm(false)} className="btn btn--outline">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Blog CRUD Modal */}
+      {showModal && (
+        <BlogModal 
+          blog={editingBlog} 
+          onSave={handleSaveBlog} 
+          onClose={() => { setShowModal(false); setEditingBlog(null); }}
+        />
+      )}
+
       <div className="fab-hero">
         <div className="container fab-hero__inner">
           <span className="section-eyebrow">Knowledge Hub</span>
@@ -74,6 +246,13 @@ export function Blog() {
       </div>
 
       <div className="container fab-body">
+        {/* Admin Control Bar */}
+        {isAdmin && (
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+            <button className="btn btn--green" onClick={() => { setEditingBlog(null); setShowModal(true); }}>+ Create Blog</button>
+          </div>
+        )}
+
         {loading ? (
           <div className="fab-skeletons">{[1,2,3].map(i=><div key={i} className="fab-skeleton"/>)}</div>
         ) : (
@@ -86,29 +265,81 @@ export function Blog() {
                   <h2 className="fab-featured__title">{featured.title}</h2>
                   <p className="fab-featured__excerpt">{featured.excerpt}</p>
                   <div className="fab-meta">{formatDate(featured.publishedAt)} · {featured.readTime} min read</div>
+                  {isAdmin && (
+                    <div className="fab-actions">
+                      <button className="btn btn--sm" onClick={() => { setEditingBlog(featured); setShowModal(true); }}>Edit</button>
+                      <button className="btn btn--sm btn--outline" onClick={() => handleDeleteBlog(featured._id)}>Delete</button>
+                    </div>
+                  )}
                 </div>
               </Link>
             )}
             <div className="fab-grid">
               {rest.map(b => (
-                <Link key={b._id} to={`/blog/${b.slug}`} className="fab-card">
-                  <div className="fab-card__img"><div className="fab-card__ph"/><span className="tag tag--green fab-cat">{b.category}</span></div>
-                  <div className="fab-card__body">
-                    <h3>{b.title}</h3>
-                    <p>{b.excerpt}</p>
-                    <div className="fab-meta">{formatDate(b.publishedAt)} · {b.readTime} min read</div>
-                  </div>
-                </Link>
+                <div key={b._id} className="fab-card">
+                  <Link to={`/blog/${b.slug}`} className="fab-card-link">
+                    <div className="fab-card__img"><div className="fab-card__ph"/><span className="tag tag--green fab-cat">{b.category}</span></div>
+                    <div className="fab-card__body">
+                      <h3>{b.title}</h3>
+                      <p>{b.excerpt}</p>
+                      <div className="fab-meta">{formatDate(b.publishedAt)} · {b.readTime} min read</div>
+                    </div>
+                  </Link>
+                  {isAdmin && (
+                    <div className="fab-card-actions">
+                      <button className="btn btn--sm" onClick={() => { setEditingBlog(b); setShowModal(true); }}>Edit</button>
+                      <button className="btn btn--sm btn--outline" onClick={() => handleDeleteBlog(b._id)}>Delete</button>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
-            {pagination?.pages > 1 && (
-              <div className="fab-pagination">
-                {Array.from({length:pagination.pages},(_,i)=>i+1).map(p=>(
-                  <button key={p} className={`pf-btn ${page===p?'active':''}`} onClick={()=>setPage(p)}>{p}</button>
-                ))}
-              </div>
-            )}
           </>
+        )}
+
+        {/* Admin Dashboard */}
+        {isAdmin && (
+          <div style={{ marginTop: '3rem', paddingTop: '2rem', borderTop: '1px solid #ddd' }}>
+            <h2>All Blogs (Admin)</h2>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #ddd' }}>
+                  <th style={{ textAlign: 'left', padding: '0.5rem' }}>Title</th>
+                  <th style={{ textAlign: 'left', padding: '0.5rem' }}>Category</th>
+                  <th style={{ textAlign: 'center', padding: '0.5rem' }}>Published</th>
+                  <th style={{ textAlign: 'center', padding: '0.5rem' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {allBlogs.map(b => (
+                  <tr key={b._id} style={{ borderBottom: '1px solid #eee' }}>
+                    <td style={{ padding: '0.5rem' }}><strong>{b.title}</strong></td>
+                    <td style={{ padding: '0.5rem' }}>{b.category}</td>
+                    <td style={{ textAlign: 'center', padding: '0.5rem' }}>{b.published ? '✓' : '○'}</td>
+                    <td style={{ textAlign: 'center', padding: '0.5rem' }}>
+                      <button className="btn btn--sm" onClick={() => { setEditingBlog(b); setShowModal(true); }}>Edit</button>
+                      <button className="btn btn--sm btn--outline" onClick={() => handleDeleteBlog(b._id)} style={{ marginLeft: '0.5rem' }}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {pagination && pagination.pages > 1 && !isAdmin && (
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
+            {Array.from({ length: pagination.pages }, (_, i) => (
+              <button
+                key={i + 1}
+                className={`btn ${page === i + 1 ? 'btn--green' : 'btn--outline'}`}
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
         )}
       </div>
     </div>

@@ -48,5 +48,24 @@
 .fab-post__cta { margin-top:44px; background:linear-gradient(135deg,var(--green-900),#001a0d); border-radius:var(--r-xl); padding:44px; }
 .fab-post__cta h3 { font-family:var(--font-display); font-size:1.4rem; color:var(--white); margin-bottom:10px; }
 .fab-post__cta p { color:rgba(255,255,255,.62); font-size:15px; }
+
+/* Admin CRUD Styles */
+.fab-modal { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,.6); display:flex; align-items:center; justify-content:center; z-index:1000; }
+.fab-modal__content { background:var(--white); border-radius:var(--r-xl); padding:32px; max-width:600px; width:90%; max-height:90vh; overflow-y:auto; box-shadow:var(--shadow-2xl); position:relative; }
+.fab-modal__close { position:absolute; top:16px; right:16px; background:none; border:none; font-size:24px; color:#999; cursor:pointer; transition:color var(--t-fast); }
+.fab-modal__close:hover { color:var(--green-900); }
+.fab-modal h2 { font-family:var(--font-display); font-size:1.5rem; color:var(--green-900); margin-bottom:24px; }
+.fab-form { display:flex; flex-direction:column; gap:16px; }
+.fab-form input, .fab-form textarea, .fab-form select { padding:12px; border:1px solid var(--green-light); border-radius:var(--r-sm); font-family:var(--font-body); font-size:14px; outline:none; transition:border-color var(--t-fast); }
+.fab-form input:focus, .fab-form textarea:focus, .fab-form select:focus { border-color:var(--green-600); }
+.fab-form__row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.fab-checkbox { display:flex; align-items:center; gap:8px; cursor:pointer; font-size:14px; }
+.fab-checkbox input { width:18px; height:18px; cursor:pointer; }
+.fab-form__actions { display:flex; gap:12px; justify-content:flex-end; }
+.fab-actions { display:flex; gap:8px; margin-top:12px; }
+.fab-card-link { text-decoration:none; }
+.fab-card-actions { padding:12px 20px 20px; display:flex; gap:8px; }
+.btn--sm { padding:6px 12px; font-size:12px; border-radius:var(--r-sm); }
+
 @media (max-width:900px) { .fab-featured{grid-template-columns:1fr} .fab-grid{grid-template-columns:repeat(2,1fr)} }
 @media (max-width:560px) { .fab-grid{grid-template-columns:1fr} .fab-featured__body{padding:24px} }

@@ -9,9 +9,10 @@ const LINKS = [
   { label:'Contact', to:'/contact' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ onAdminClick }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(!!localStorage.getItem('adminToken'));
   const location = useLocation();
   const isHome = location.pathname === '/';
 
@@ -24,6 +25,18 @@ export default function Navbar() {
     setOpen(false);
     setScrolled(false);
   }, [location]);
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem('adminToken');
+    setIsAdmin(false);
+  };
+
+  const handleAdminClick = () => {
+    localStorage.setItem('showAdminModal', 'true');
+    window.dispatchEvent(new Event('adminModalRequested'));
+  };
+
+  const isBlogPage = location.pathname === '/blog';
 
   return (
     <header className={`fan ${scrolled || !isHome ? 'fan--scrolled' : ''}`}>
@@ -51,6 +64,19 @@ export default function Navbar() {
         </nav>
 
         <div className="fan__actions">
+          {isBlogPage && (
+            <>
+              {isAdmin ? (
+                <button className="fan__admin-btn fan__admin-btn--active" onClick={handleAdminLogout}>
+                  Logout
+                </button>
+              ) : (
+                <button className="fan__admin-btn" onClick={handleAdminClick}>
+                  Admin
+                </button>
+              )}
+            </>
+          )}
           <a href="https://makamilfarma.com" target="_blank" rel="noopener noreferrer" className="fan__main-link">
             ← Main Site
           </a>
