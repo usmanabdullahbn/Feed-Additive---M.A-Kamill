@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import bgHeroVideo from '../assets/bg-hero.mp4';
 import './Home.css';
 
 function StatCounter({ end, suffix='' }) {
@@ -58,6 +59,20 @@ export default function Home() {
       {/* ── Hero ── */}
       <section className="fa-hero">
         <div className="fa-hero__bg">
+          <video
+            className="fa-hero__video"
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"
+          >
+            <source
+              src={bgHeroVideo}
+              type="video/mp4"
+            />
+          </video>
           <div className="fa-hero__mesh" />
           <div className="fa-hero__overlay" />
         </div>
